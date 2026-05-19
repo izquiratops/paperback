@@ -4,63 +4,40 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Paperback — a quiet pdf editor</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@knadh/oat/oat.min.css" />
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@knadh/oat/oat.min.js" defer></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  body { font-family: 'Fraunces', Georgia, serif; background: #ede5d6; }
-  .mono { font-family: 'JetBrains Mono', monospace; }
-  .page-card { transition: transform .18s cubic-bezier(.2,.7,.3,1); }
-  .page-card:hover { transform: translateY(-2px); }
-  .page-card.dragging { opacity: .35; }
-  .drop-indicator { background: #1a1a1a; }
-  .btn-primary { background:#1a1a1a; color:#f7f3ec; transition: all .15s; }
-  .btn-primary:hover:not(:disabled) { background:#000; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
-  .btn-primary:disabled { opacity:.4; cursor: not-allowed; }
-  .btn-ghost { transition: all .15s; }
-  .btn-ghost:hover:not(:disabled) { background: rgba(26,26,26,.06); }
-  .btn-ghost:disabled { opacity:.35; cursor: not-allowed; }
-  .btn-danger:hover:not(:disabled) { background: rgba(180,40,40,.1); color:#b42828; }
-  ::-webkit-scrollbar { width:8px; height:8px; }
-  ::-webkit-scrollbar-thumb { background: rgba(26,26,26,.2); border-radius:4px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(26,26,26,.4); }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spin { animation: spin 1s linear infinite; }
-  @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
-  .fade-in { animation: fadeIn .25s ease-out forwards; }
-</style>
 </head>
-<body class="text-stone-900">
+<body>
 
-<div id="app" class="flex flex-col h-screen">
+<div id="app">
 
   <!-- Header -->
-  <header class="border-b border-stone-900/15 px-6 py-4">
-    <div class="flex items-center justify-between gap-4 flex-wrap">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-sm flex items-center justify-center bg-stone-900">
-          <svg class="w-5 h-5 text-stone-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
         <div>
-          <h1 class="text-2xl leading-none font-medium tracking-tight">Paperback</h1>
-          <p class="text-xs mono opacity-60 mt-0.5">— a quiet pdf editor</p>
+          <h1>Paperback</h1>
+          <span class="tagline">— a quiet pdf editor</span>
         </div>
       </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <button @click="$refs.pdfInput.click()" :disabled="!ready || busy" class="btn-ghost px-4 py-2 text-sm flex items-center gap-2 rounded-sm border border-stone-900/20">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div class="header-actions">
+        <button @click="$refs.pdfInput.click()" :disabled="!ready || busy" class="outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           Import PDF
         </button>
-        <button @click="$refs.imgInput.click()" :disabled="!ready || busy" class="btn-ghost px-4 py-2 text-sm flex items-center gap-2 rounded-sm border border-stone-900/20">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <button @click="$refs.imgInput.click()" :disabled="!ready || busy" class="outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           Add Image
         </button>
-        <button @click="exportPdf" :disabled="!ready || busy || !pages.length" class="btn-primary px-5 py-2 text-sm flex items-center gap-2 rounded-sm">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+        <button @click="exportPdf" :disabled="!ready || busy || !pages.length">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
           Export PDF
         </button>
       </div>
@@ -68,42 +45,42 @@
   </header>
 
   <!-- Toolbar -->
-  <div class="px-6 py-3 border-b border-stone-900/10 flex items-center gap-3 flex-wrap">
-    <span class="mono text-xs uppercase tracking-wider opacity-60">
+  <div class="toolbar">
+    <span class="toolbar-info">
       {{ pages.length }} {{ pages.length === 1 ? 'page' : 'pages' }}
-      <span v-if="selected.size" class="ml-2 px-2 py-0.5 rounded-sm bg-stone-900 text-stone-100">{{ selected.size }} selected</span>
+      <span v-if="selected.size" class="badge">{{ selected.size }} selected</span>
     </span>
-    <button v-if="pages.length" @click="selectAll" class="btn-ghost px-2 py-1 text-xs mono uppercase tracking-wider rounded-sm">
+    <button v-if="pages.length" @click="selectAll" class="ghost small">
       {{ selected.size === pages.length ? 'Deselect all' : 'Select all' }}
     </button>
-    <button @click="deleteSelected" :disabled="!selected.size" class="btn-ghost btn-danger px-2 py-1 text-xs mono uppercase tracking-wider rounded-sm flex items-center gap-1.5">
-      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+    <button @click="deleteSelected" :disabled="!selected.size" class="ghost small" data-variant="danger">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
       Delete
     </button>
-    <button v-if="pages.length" @click="clearAll" class="btn-ghost btn-danger px-2 py-1 text-xs mono uppercase tracking-wider rounded-sm">Clear all</button>
+    <button v-if="pages.length" @click="clearAll" class="ghost small" data-variant="danger">Clear all</button>
   </div>
 
   <!-- Main -->
-  <main class="flex-1 overflow-auto px-6 py-8">
+  <main>
     <!-- Empty state -->
-    <div v-if="!pages.length" class="h-full flex items-center justify-center fade-in">
-      <div class="text-center max-w-md">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-sm border-2 border-dashed border-stone-900/20 mb-6">
-          <svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <div v-if="!pages.length" class="empty-state fade-in">
+      <div class="empty-inner">
+        <div class="empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
-        <h2 class="text-3xl mb-3 tracking-tight">An <em class="italic font-medium">empty</em> manuscript.</h2>
-        <p class="text-sm opacity-60 mb-8 leading-relaxed">Start by importing a PDF or dropping in a few images. Rearrange, prune, then export — quietly, on your own terms.</p>
-        <div class="flex items-center justify-center gap-3">
-          <button @click="$refs.pdfInput.click()" :disabled="!ready" class="btn-primary px-5 py-2.5 text-sm flex items-center gap-2 rounded-sm">Import a PDF</button>
-          <button @click="$refs.imgInput.click()" :disabled="!ready" class="btn-ghost px-5 py-2.5 text-sm flex items-center gap-2 rounded-sm border border-stone-900/20">Add images</button>
+        <h2>An <em>empty</em> manuscript.</h2>
+        <p>Start by importing a PDF or dropping in a few images. Rearrange, prune, then export — quietly, on your own terms.</p>
+        <div class="empty-actions">
+          <button @click="$refs.pdfInput.click()" :disabled="!ready">Import a PDF</button>
+          <button @click="$refs.imgInput.click()" :disabled="!ready" class="outline">Add images</button>
         </div>
       </div>
     </div>
 
     <!-- Grid -->
-    <div v-else class="grid gap-5 max-w-7xl mx-auto" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+    <div v-else class="page-grid">
       <div v-for="(page, i) in pages" :key="page.id"
-        class="page-card relative cursor-pointer fade-in"
+        class="page-card fade-in"
         :class="{ dragging: draggedId === page.id }"
         draggable="true"
         @click="onPageClick($event, page.id, i)"
@@ -112,15 +89,12 @@
         @drop.prevent="onDrop(i)"
         @dragend="onDragEnd"
       >
-        <!-- Drop indicator line -->
-        <div v-if="dragOverIdx === i && draggedId !== page.id" class="absolute -left-2.5 top-[10%] bottom-[10%] w-[3px] drop-indicator rounded-sm"></div>
+        <div v-if="dragOverIdx === i && draggedId !== page.id" class="drop-indicator"></div>
 
-        <div class="relative bg-white rounded-sm overflow-hidden border-2"
-          :class="selected.has(page.id) ? 'border-stone-900' : 'border-stone-900/10'"
-          :style="{ aspectRatio: '0.707', boxShadow: selected.has(page.id) ? '0 8px 24px rgba(0,0,0,.18), 0 0 0 4px rgba(26,26,26,.08)' : '0 2px 6px rgba(0,0,0,.08)' }">
-          <img :src="page.dataUrl" :alt="'Page ' + (i+1)" class="w-full h-full object-contain" draggable="false" />
-          <div class="absolute top-2 left-2 mono text-[10px] px-1.5 py-0.5 rounded-sm bg-stone-900/85 text-stone-100">{{ String(i+1).padStart(2,'0') }}</div>
-          <div v-if="selected.has(page.id)" class="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-stone-900 text-stone-100 flex items-center justify-center text-[10px] mono">✓</div>
+        <div class="page-thumb" :class="{ selected: selected.has(page.id) }">
+          <img :src="page.dataUrl" :alt="'Page ' + (i+1)" draggable="false" />
+          <div class="page-num">{{ String(i+1).padStart(2,'0') }}</div>
+          <div v-if="selected.has(page.id)" class="page-check">✓</div>
         </div>
       </div>
 
@@ -128,43 +102,42 @@
       <div
         @dragover.prevent="dragOverIdx = pages.length"
         @drop.prevent="onDrop(pages.length)"
-        class="rounded-sm border-2 border-dashed transition-colors"
-        :class="dragOverIdx === pages.length ? 'border-stone-900 bg-stone-900/5' : 'border-stone-900/10'"
-        :style="{ aspectRatio: '0.707' }"
+        class="drop-zone"
+        :class="{ active: dragOverIdx === pages.length }"
       ></div>
     </div>
   </main>
 
-  <!-- Footer -->
-  <div v-if="pages.length" class="px-6 py-2 text-xs mono opacity-50 border-t border-stone-900/10 text-center">
+  <!-- Status bar -->
+  <div v-if="pages.length" class="status-bar">
     click to select · shift+click range · ⌘/ctrl+click multi · drag to reorder
   </div>
 
   <!-- Hidden inputs -->
-  <input ref="pdfInput" type="file" accept="application/pdf" multiple class="hidden" @change="onPdfFiles" />
-  <input ref="imgInput" type="file" accept="image/*" multiple class="hidden" @change="onImgFiles" />
+  <input ref="pdfInput" type="file" accept="application/pdf" multiple style="display:none" @change="onPdfFiles" />
+  <input ref="imgInput" type="file" accept="image/*" multiple style="display:none" @change="onImgFiles" />
 
   <!-- Busy overlay -->
-  <div v-if="busy" class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(237,229,214,.7); backdrop-filter: blur(4px);">
-    <div class="bg-stone-50 border border-stone-900/15 rounded-sm px-8 py-6 flex items-center gap-4 shadow-xl">
-      <svg class="w-5 h-5 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+  <div v-if="busy" class="overlay">
+    <div class="spinner-card">
+      <svg class="spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
       <div>
-        <p class="text-sm font-medium">{{ busyMessage || 'Working…' }}</p>
-        <p class="text-xs mono opacity-50 mt-0.5">please hold</p>
+        <p class="label">{{ busyMessage || 'Working…' }}</p>
+        <p class="sub">please hold</p>
       </div>
     </div>
   </div>
 
   <!-- Toast -->
-  <div v-if="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-sm shadow-lg text-stone-100 fade-in"
-    :style="{ background: toast.type === 'error' ? '#b42828' : '#1a1a1a' }">
-    <p class="text-sm mono">{{ toast.message }}</p>
+  <div v-if="toast" class="toast fade-in"
+    :class="{ 'is-error': toast.type === 'error' }">
+    <p>{{ toast.message }}</p>
   </div>
 
   <!-- Library loading -->
-  <div v-if="!ready" class="fixed bottom-6 right-6 z-40 bg-stone-50 border border-stone-900/15 rounded-sm px-4 py-2.5 flex items-center gap-2 shadow-sm">
-    <svg class="w-3.5 h-3.5 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>
-    <span class="text-xs mono opacity-70">loading pdf engine…</span>
+  <div v-if="!ready" class="loading-pill">
+    <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>
+    loading pdf engine…
   </div>
 </div>
 
@@ -380,7 +353,6 @@ createApp({
             const [copied] = await out.copyPages(src, [p.pdfPageIndex]);
             out.addPage(copied);
           } else {
-            // Compress: always re-encode as JPEG and downscale large images
             const jpg = await imgToJpgBytes(p.dataUrl, 0.7);
             const embedded = await out.embedJpg(jpg);
             let { width, height } = embedded.scale(1);
